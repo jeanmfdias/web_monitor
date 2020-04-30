@@ -4,7 +4,11 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"time"
 )
+
+const monitoring = 3
+const sleepMonitoring = 5
 
 func main() {
 	showIntro()
@@ -34,7 +38,7 @@ func showIntro() {
 }
 
 func showMenu() {
-	fmt.Println("[1] Start monitor")
+	fmt.Println("\n[1] Start monitor")
 	fmt.Println("[2] Show logs")
 	fmt.Println("[0] Exit")
 }
@@ -47,10 +51,20 @@ func readCommand() int {
 
 func startMonitoring() {
 	fmt.Println("Monitoring...")
-	site := "http://github.com"
+	sites := []string{"http://github.com", "http://gitlab.com", "http://bitbucket.com"}
+
+	for i := 0; i < monitoring; i++ {
+		for _, site := range sites {
+			testSite(site)
+		}
+		time.Sleep(sleepMonitoring * time.Second)
+	}
+}
+
+func testSite(site string) {
 	res, _ := http.Get(site)
 	if res.StatusCode == 200 {
-		fmt.Println(site, "-> Success")
+		fmt.Println(site, "-> Success", time.Now().Format(time.UnixDate))
 	} else {
 		fmt.Println(site, "->", res.StatusCode)
 	}
