@@ -2,24 +2,29 @@ package main
 
 import (
 	"fmt"
+	"net/http"
 	"os"
 )
 
 func main() {
 	showIntro()
-	showMenu()
 
-	switch readCommand() {
-	case 1:
-		fmt.Println("Monitoring...")
-	case 2:
-		fmt.Println("Show logs:")
-	case 0:
-		fmt.Println("Exit, Bye!")
-		os.Exit(0)
-	default:
-		fmt.Println("I don't understand your command typed!")
-		os.Exit(-1)
+	// infinity loop
+	for {
+		showMenu()
+
+		switch readCommand() {
+		case 1:
+			startMonitoring()
+		case 2:
+			fmt.Println("Show logs...")
+		case 0:
+			fmt.Println("Exit, Bye!")
+			os.Exit(0)
+		default:
+			fmt.Println("I don't understand your command typed!")
+			os.Exit(-1)
+		}
 	}
 }
 
@@ -38,4 +43,15 @@ func readCommand() int {
 	var command int
 	fmt.Scan(&command)
 	return command
+}
+
+func startMonitoring() {
+	fmt.Println("Monitoring...")
+	site := "http://github.com"
+	res, _ := http.Get(site)
+	if res.StatusCode == 200 {
+		fmt.Println(site, "-> Success")
+	} else {
+		fmt.Println(site, "->", res.StatusCode)
+	}
 }
