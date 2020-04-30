@@ -1,0 +1,3 @@
+http://github.com
+http://gitlab.com
+http://bitbucket.com

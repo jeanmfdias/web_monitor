@@ -1,9 +1,12 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -51,7 +54,8 @@ func readCommand() int {
 
 func startMonitoring() {
 	fmt.Println("Monitoring...")
-	sites := []string{"http://github.com", "http://gitlab.com", "http://bitbucket.com"}
+
+	sites := readLineFile()
 
 	for i := 0; i < monitoring; i++ {
 		for _, site := range sites {
@@ -62,10 +66,43 @@ func startMonitoring() {
 }
 
 func testSite(site string) {
-	res, _ := http.Get(site)
-	if res.StatusCode == 200 {
-		fmt.Println(site, "-> Success", time.Now().Format(time.UnixDate))
+	res, err := http.Get(site)
+
+	if err != nil {
+		fmt.Println("Error ->", err)
 	} else {
-		fmt.Println(site, "->", res.StatusCode)
+		if res.StatusCode == 200 {
+			fmt.Println(site, "-> Success", time.Now().Format(time.UnixDate))
+		} else {
+			fmt.Println(site, "->", res.StatusCode)
+		}
 	}
+}
+
+func readLineFile() []string {
+	var sites []string
+	file, err := os.Open("sites.txt")
+
+	if err != nil {
+		fmt.Println("Error ->", err)
+	} else {
+		reader := bufio.NewReader(file)
+		for {
+			line, err := reader.ReadString('\n')
+			line = strings.TrimSpace(line)
+
+			if err != nil && err != io.EOF {
+				fmt.Println("Error ->", err)
+			}
+
+			sites = append(sites, line)
+
+			if err == io.EOF {
+				break
+			}
+		}
+	}
+	file.Close()
+
+	return sites
 }
