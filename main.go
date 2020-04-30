@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -24,7 +25,7 @@ func main() {
 		case 1:
 			startMonitoring()
 		case 2:
-			fmt.Println("Show logs...")
+			printLogs()
 		case 0:
 			fmt.Println("Exit, Bye!")
 			os.Exit(0)
@@ -54,6 +55,7 @@ func readCommand() int {
 
 func startMonitoring() {
 	fmt.Println("Monitoring...")
+	fmt.Println("")
 
 	sites := readLineFile()
 
@@ -72,10 +74,11 @@ func testSite(site string) {
 		fmt.Println("Error ->", err)
 	} else {
 		if res.StatusCode == 200 {
-			fmt.Println(site, "-> Success", time.Now().Format(time.UnixDate))
+			fmt.Println(site, "-> Success", time.Now().Format("2006/01/02 03:04:05 PM"))
 		} else {
 			fmt.Println(site, "->", res.StatusCode)
 		}
+		saveLog(site, res.StatusCode)
 	}
 }
 
@@ -105,4 +108,40 @@ func readLineFile() []string {
 	file.Close()
 
 	return sites
+}
+
+func saveLog(site string, status int) {
+	file, err := os.OpenFile("sites.log", os.O_RDWR|os.O_APPEND|os.O_CREATE, 0666)
+
+	if err != nil {
+		fmt.Println("Error ->", err)
+	} else {
+		file.WriteString(time.Now().Format("2006/01/02 03:04:05 PM") + " | " + site + "-> Status:" + strconv.Itoa(status) + "\n")
+	}
+
+	file.Close()
+}
+
+func printLogs() {
+	fmt.Println("Print logs...")
+	fmt.Println("")
+
+	file, err := os.Open("sites.log")
+
+	if err != nil {
+		fmt.Println("Error ->", err)
+	} else {
+		reader := bufio.NewReader(file)
+		for {
+			line, err := reader.ReadString('\n')
+			line = strings.TrimSpace(line)
+
+			fmt.Println(line)
+
+			if err == io.EOF {
+				break
+			}
+		}
+	}
+	file.Close()
 }
