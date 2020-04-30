@@ -14,6 +14,8 @@ import (
 
 const monitoring = 3
 const sleepMonitoring = 5
+const fileNameLog = "sites.log"
+const fileSiteList = "sites.txt"
 
 func main() {
 	showIntro()
@@ -85,7 +87,7 @@ func testSite(site string) {
 
 func readLineFile() []string {
 	var sites []string
-	file, err := os.Open("sites.txt")
+	file, err := os.Open(fileSiteList)
 
 	if err != nil {
 		fmt.Println("Error ->", err)
@@ -112,7 +114,7 @@ func readLineFile() []string {
 }
 
 func saveLog(site string, status int) {
-	file, err := os.OpenFile("sites.log", os.O_RDWR|os.O_APPEND|os.O_CREATE, 0666)
+	file, err := os.OpenFile(fileNameLog, os.O_RDWR|os.O_APPEND|os.O_CREATE, 0666)
 
 	if err != nil {
 		fmt.Println("Error ->", err)
@@ -127,7 +129,7 @@ func printLogs() {
 	fmt.Println("Print logs...")
 	fmt.Println("")
 
-	file, err := ioutil.ReadFile("sites.log")
+	file, err := ioutil.ReadFile(fileNameLog)
 
 	if err != nil {
 		fmt.Println("Error ->", err)
