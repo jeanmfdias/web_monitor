@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"strconv"
@@ -126,22 +127,11 @@ func printLogs() {
 	fmt.Println("Print logs...")
 	fmt.Println("")
 
-	file, err := os.Open("sites.log")
+	file, err := ioutil.ReadFile("sites.log")
 
 	if err != nil {
 		fmt.Println("Error ->", err)
 	} else {
-		reader := bufio.NewReader(file)
-		for {
-			line, err := reader.ReadString('\n')
-			line = strings.TrimSpace(line)
-
-			fmt.Println(line)
-
-			if err == io.EOF {
-				break
-			}
-		}
+		fmt.Println(string(file))
 	}
-	file.Close()
 }
